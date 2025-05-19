@@ -7,6 +7,24 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/main/Dotnet.gitignore
 
+# IDE-specific
+obj
+bin
+node_modules
+packages/*
+dist
+temp/*
+.runsettings
+*metaproj*
+TestResults
+.env
+
+.vs
+.mono
+.vscode/settings.json
+.DS_Store
+
+
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/
