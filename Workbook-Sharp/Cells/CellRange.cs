@@ -4,10 +4,16 @@ namespace WorkbookSharp.Cells;
 
 public class CellRange(Worksheet _worksheet, uint _startRow, uint _startColumn, uint _endRow, uint _endColumn)
 {
-    public object Value
+    public object? Value
     {
-        // TODO: Getter
+        get => _worksheet.Actions.TryGetValue((_startRow, _startColumn, _startRow, _startColumn), out var action) ? action : null;
         set => _worksheet.SetValue((_startRow, _startColumn), value);        
+    }
+
+    public string? Formula
+    {
+        get => _worksheet.Actions.TryGetValue((_startRow, _startColumn, _startRow, _startColumn), out var action) && action is CellFormula f ? f.Formula : null;
+        set => _worksheet.SetFormula((_startRow, _startColumn), value, false);
     }
 
     public bool Merge
@@ -29,15 +35,9 @@ public class CellRange(Worksheet _worksheet, uint _startRow, uint _startColumn, 
 
     public Style? Style
     {
-        // TODO: Getter
-        //get
-        //{
-        //    if (_worksheet.Actions.TryGetValue((_startRow, _startColumn, _endRow, _endColumn), out var action))
-        //        return action.Style;
-
-        //    return null;
-        //}
-        set => _worksheet.SetStyle((_startRow, _startColumn), value);        
+        // TODO:
+        //get => _worksheet.Actions.TryGetValue((_startRow, _startColumn, _startRow, _startColumn), out var action) ? action.StyleIndex : null;
+        set => _worksheet.SetStyle((_startRow, _startColumn), (_endRow, _endColumn), value);
     }
 
     public CellRange this[string address]

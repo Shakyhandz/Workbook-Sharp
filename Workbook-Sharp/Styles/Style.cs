@@ -14,6 +14,8 @@ public class Style : IEquatable<Style>
     public bool IsPercentage { get; set; }
     public XlHorizontalAlignment? HorizontalAlignment { get; set; }
 
+    public Style Clone() => MemberwiseClone() as Style ?? new Style();
+
     public override bool Equals(object? obj) => Equals(obj as Style);
 
     public bool Equals(Style? other)

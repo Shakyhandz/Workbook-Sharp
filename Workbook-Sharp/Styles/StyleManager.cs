@@ -35,10 +35,16 @@ internal class StyleManager
         var fill1 = new Fill { PatternFill = new PatternFill { PatternType = PatternValues.Gray125 } };
         _fillMap[fill1.OuterXml] = 1;
         _fills.Add(fill1);
+
+        // Add default empty style (index 0)
+        _ = GetStyleIndex(new Style());
     }
 
     internal uint GetStyleIndex(Style style)
     {
+        // Clone to avoid modifying the key style
+        style = style.Clone();
+
         if (_styleIndexMap.TryGetValue(style, out var index))
             return index;
 
@@ -103,6 +109,9 @@ internal class StyleManager
     private uint AddFont(Style style)
     {
         var font = new Font();
+
+        // TODO: font color
+        //font.Append(new Color { Rgb = new HexBinaryValue { Value = "FF0000" } }); // Red
 
         if (style.FontSize is double size)
             font.Append(new FontSize { Val = size });
