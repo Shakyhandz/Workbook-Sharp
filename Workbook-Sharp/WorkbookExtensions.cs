@@ -86,7 +86,7 @@ public static class WorkbookExtensions
     }
 
     private const int EXCEL_MAX_SHEET_NAME_LENGTH = 31;
-    public static string GetNewSheetNameSafe(this List<Worksheet> sheets, string sheetName)
+    internal static string GetNewSheetNameSafe(this List<Worksheet> sheets, string sheetName)
     {
         // Remove illegal characters
         var illegalCharacters = new[] { '\\', '/', '*', '[', ']', ':', '?', }.ToList();
