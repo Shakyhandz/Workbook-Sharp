@@ -27,6 +27,17 @@ internal class CellFormula : CellAction
 
     internal string ParseFormula()
     {
+        var parsedFormula = ParseFormulaInternal();
+        var errors = ExcelFormulaValidator.ValidateFormula(parsedFormula);
+
+        if (errors.Count > 0)
+            throw new ArgumentException($"Invalid formula {Formula} in cell {CellReference.Address}:\r\n{errors.StringJoin("\r\n")}");
+        
+        return parsedFormula!;
+    }
+
+    private string? ParseFormulaInternal()
+    { 
         if (Formula.IsSome() && IsRelative)
         {
             try
@@ -62,9 +73,7 @@ internal class CellFormula : CellAction
                 throw new ArgumentException($"Could not parse relative formula {Formula} in cell {CellReference.Address}");
             }
         }
-        else
-        {
-            return Formula ?? "";
-        }
+
+        return Formula;
     }
 }
