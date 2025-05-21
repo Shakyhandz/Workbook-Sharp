@@ -12,78 +12,77 @@ public static class StringExtensions
     /// <summary>
     /// Clean the string from chars 
     /// </summary>
-    /// <param name="input">String to clean</param>
+    /// <param name="str">String to clean</param>
     /// <param name="charsToClean">Chars that should be removed from the string</param>
     /// <returns>A cleaned string</returns>    
-    public static string Clean(this string? input, string charsToClean) => Clean(input, [.. charsToClean]);
+    public static string Clean(this string? str, string charsToClean) => Clean(str, [.. charsToClean]);
 
     /// <summary>
     /// Clean the string from chars 
     /// </summary>
-    /// <param name="input">String to clean</param>
+    /// <param name="str">String to clean</param>
     /// <param name="charsToClean">Chars that should be removed from the string</param>
     /// <returns>A cleaned string</returns>  
-    public static string Clean(this string? input, HashSet<char> charsToClean) => input.IsNothing() ? "" : new string(input!.Where(c => !charsToClean.Contains(c)).ToArray());
+    public static string Clean(this string? str, HashSet<char> charsToClean) => str.IsNothing() ? "" : new string(str!.Where(c => !charsToClean.Contains(c)).ToArray());
     
     /// <summary>
     /// Validates a string to see if it's an email address
     /// </summary>
-    /// <param name="email">String to check</param>
+    /// <param name="str">String to check</param>
     /// <returns>true if the string is an email address</returns>
-    public static bool IsEmailAddress(this string email) => email.IsSome() && _matchEmail.IsMatch(email);
+    public static bool IsEmailAddress(this string? str) => str.IsSome() && _matchEmail.IsMatch(str!);
 
     /// <summary>
     /// Checks if the string is null, empty or just contains whitespaces
     /// </summary>
-    /// <param name="thisValue">String to check</param>
+    /// <param name="str">String to check</param>
     /// <returns>True if nothing</returns>
-    public static bool IsNothing(this string? thisValue) => thisValue == null || string.IsNullOrEmpty(thisValue.Trim());
+    public static bool IsNothing(this string? str) => str == null || string.IsNullOrEmpty(str.Trim());
 
     /// <summary>
     /// Checks that the string is not null, empty or just containing whitespaces
     /// </summary>
-    /// <param name="thisValue">String to check</param>
+    /// <param name="str">String to check</param>
     /// <returns>True if the string is something</returns>
-    public static bool IsSome(this string? thisValue) => !thisValue.IsNothing();
+    public static bool IsSome(this string? str) => !str.IsNothing();
 
     /// <summary>
     /// Check if the string has only numeric characters. Use case: for really long numbers where long.TryParse fails
     /// </summary>
-    /// <param name="thisValue">String to check</param>
+    /// <param name="str">String to check</param>
     /// <returns>True if the string just has numeric characters</returns>
-    public static bool IsNumeric(this string? value) => value.IsSome() && value!.All(char.IsDigit);
+    public static bool IsNumeric(this string? str) => str.IsSome() && str!.All(char.IsDigit);
 
     /// <summary>
     /// Truncate a string if it exceeds a threshold value
     /// </summary>
-    /// <param name="thisValue">String to truncate</param>
+    /// <param name="str">String to truncate</param>
     /// <param name="length">Length of the resulting string</param>
     /// <param name="add"></param>
     /// <returns>Truncated string</returns>
-    public static string Truncate(this string? thisValue, int length, string add = "") => thisValue.IsNothing() ? "" :
-                                                                                          thisValue!.Length <= length ? thisValue : 
-                                                                                          thisValue.Substring(0, length) + add;
+    public static string Truncate(this string? str, int length, string add = "") => str.IsNothing() || str!.Length <= length ? str ?? "" :
+                                                                                    str.Substring(0, length) + add;
                                                 
     /// <summary>
     /// Parse a string and convert it to a 32 bit integer
     /// </summary>
-    /// <param name="thisValue">String to parse</param>
+    /// <param name="str">String to parse</param>
     /// <returns>null if the string wasn't a integer, otherwise the parsed integer</returns>
-    public static int? ToInt32(this string? thisValue) => thisValue.IsSome() && int.TryParse(thisValue, out var i) ? i : null;
+    public static int? ToInt32(this string? str) => str.IsSome() && int.TryParse(str, out var i) ? i : null;
     
     /// <summary>
     /// Parse a string and convert it to a decimal
     /// </summary>
-    /// <param name="thisValue">String to parse</param>
+    /// <param name="str">String to parse</param>
     /// <returns>null if the string wasn't a decimal, otherwise the parsed decimal</returns>
-    public static decimal? ToDecimal(this string? thisValue) => thisValue.IsSome() && decimal.TryParse(thisValue, out var i) ? i : null;
+    public static decimal? ToDecimal(this string? str) => str.IsSome() && decimal.TryParse(str, out var i) ? i : null;
     
     /// <summary>
     /// Parse a string and convert it to a 64 bit long
     /// </summary>
-    /// <param name="thisValue">String to parse</param>
+    /// <param name="str">String to parse</param>
     /// <returns>null if the string wasn't a long, otherwise the parsed long</returns>
-    public static long? ToInt64(this string thisValue) => thisValue.IsSome() && long.TryParse(thisValue, out var i) ? i : null;
+    public static long? ToInt64(this string? str) => str.IsSome() && long.TryParse(str, out var i) ? i : null;
     
     /// <summary>
     /// If the string is nothing throw a argument exception
@@ -100,52 +99,60 @@ public static class StringExtensions
     /// <summary>
     /// Replace all occurrences of a string with another string
     /// </summary>
-    /// <param name="thisValue">The string</param>
+    /// <param name="str">The string</param>
     /// <param name="strings">The strings to replace</param>
     /// <returns></returns>
-    public static string Remove(this string? thisValue, IEnumerable<string> strings) => thisValue.IsNothing() ? "" : strings.Aggregate(thisValue!, (current, s) => current.Replace(s, ""));
+    public static string Remove(this string? str, IEnumerable<string> strings) => str.IsNothing() ? "" : strings.Aggregate(str!, (current, s) => current.Replace(s, ""));
 
     /// <summary>
-    /// Replace the last occurrence of a string with another string
+    /// Replaces the last occurrence of a specified substring with a new value.
     /// </summary>
-    /// <param name="text"></param>
-    /// <param name="search"></param>
-    /// <param name="replace"></param>
-    /// <returns></returns>
-    public static string ReplaceLastOccurrence(this string? text, string search, string replace)
+    /// <param name="str">The source string to operate on.</param>
+    /// <param name="search">The substring to find and replace.</param>
+    /// <param name="replace">The replacement string.</param>
+    /// <returns>
+    /// A new string with the last occurrence of <paramref name="search"/> replaced by <paramref name="replace"/>,
+    /// or the original string if <paramref name="search"/> is not found.
+    /// Returns an empty string if <paramref name="str"/> is null or empty.
+    /// </returns>
+    public static string ReplaceLastOccurrence(this string? str, string search, string replace)
     {
-        if (text.IsNothing())
+        if (str.IsNothing() || string.IsNullOrEmpty(search))
             return "";
 
-        int pos = text!.LastIndexOf(search);
+        int pos = str!.LastIndexOf(search, StringComparison.Ordinal);
 
         if (pos < 0)
-            return text;
+            return str;
 
-        return text.Substring(0, pos) + 
-               replace + 
-               text.Substring(pos + search.Length);
+        return string.Concat(str.AsSpan(0, pos),
+                             replace,
+                             str.AsSpan(pos + search.Length));
     }
 
     /// <summary>
-    /// 
+    /// Replaces the last occurrence of a specified substring with a new value.
     /// </summary>
-    /// <param name="text"></param>
-    /// <param name="search"></param>
-    /// <param name="replace"></param>
-    /// <returns></returns>
-    public static string ReplaceFirstOccurrence(this string? text, string search, string replace)
+    /// <param name="str">The source string to operate on.</param>
+    /// <param name="search">The substring to find and replace.</param>
+    /// <param name="replace">The replacement string.</param>
+    /// <returns>
+    /// A new string with the first occurrence of <paramref name="search"/> replaced by <paramref name="replace"/>,
+    /// or the original string if <paramref name="search"/> is not found.
+    /// Returns an empty string if <paramref name="str"/> is null or empty.
+    /// </returns>
+    public static string ReplaceFirstOccurrence(this string? str, string search, string replace)
     {
-        if (text.IsNothing())
+        if (str.IsNothing() || string.IsNullOrEmpty(search))
             return "";
 
-        int pos = text!.IndexOf(search);
+        int pos = str!.IndexOf(search, StringComparison.Ordinal);
 
         if (pos < 0)
-            return text;
+            return str;
 
-        return text.Substring(0, pos) + 
-               replace + 
-               text.Substring(pos + search.Length);
+        return string.Concat(str.AsSpan(0, pos),
+                             replace,
+                             str.AsSpan(pos + search.Length));
     }
 }
