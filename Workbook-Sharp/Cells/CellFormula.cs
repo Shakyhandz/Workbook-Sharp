@@ -4,6 +4,9 @@ namespace WorkbookSharp.Cells;
 
 internal class CellFormula : CellAction
 {
+    // Placed here to be able to reuse the same compiled instance
+    private static readonly Regex R1C1Regex = new Regex(@"R(?<row>(\[\-?\d+\])|\d+)?C(?<col>(\[\-?\d+\])|\d+)?", RegexOptions.Compiled);
+
     private string? _formula;
     public string? Formula => _formula;
     
@@ -18,18 +21,18 @@ internal class CellFormula : CellAction
 
     public CellFormula((uint row, uint column) cellReference, string? formula, bool isRelative, uint? styleIndex) : base(cellReference, styleIndex)
     {
-        _formula = formula?.TrimStart('='); // Remo+ve leading '='
+        _formula = formula?.TrimStart('='); // Remove leading '='
         _isRelative = isRelative;
     }
 
-    internal string ParseFormula(Regex r1c1Regex)
+    internal string ParseFormula()
     {
         if (Formula.IsSome() && IsRelative)
         {
             try
             {
 
-                return r1c1Regex.Replace(Formula ?? "", match =>
+                return R1C1Regex.Replace(Formula ?? "", match =>
                 {
                     string rowPart = match.Groups["row"].Value;
                     string colPart = match.Groups["col"].Value;

@@ -1,7 +1,6 @@
 ﻿using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
-using System.Text.RegularExpressions;
 using WorkbookSharp.Cells;
 using WorkbookSharp.Styles;
 
@@ -9,9 +8,6 @@ namespace WorkbookSharp;
 
 public class Workbook
 {
-    // Placed here to be able to reuse the same compiled instance
-    private static readonly Regex R1C1Regex = new Regex(@"R(?<row>(\[\-?\d+\])|\d+)?C(?<col>(\[\-?\d+\])|\d+)?", RegexOptions.Compiled);
-
     private List<Worksheet> _worksheets = [];
     internal StyleManager styleManager = new();
     
@@ -94,7 +90,7 @@ public class Workbook
                         var cell = InsertCellInWorksheet(worksheetPart, formula.CellReference.ColumnName, formula.CellReference.RowIndex);
 
                         cell.CellReference = formula.CellReference.Address; // optional but helps with structure
-                        cell.CellFormula = new DocumentFormat.OpenXml.Spreadsheet.CellFormula { Text = formula.ParseFormula(R1C1Regex) };
+                        cell.CellFormula = new DocumentFormat.OpenXml.Spreadsheet.CellFormula { Text = formula.ParseFormula() };
                         cell.StyleIndex = formula.StyleIndex;                        
                     }
                 }
