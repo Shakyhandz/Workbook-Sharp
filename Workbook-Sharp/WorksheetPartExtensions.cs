@@ -5,7 +5,7 @@ using WorkbookSharp.Cells;
 
 namespace WorkbookSharp;
 
-internal static class WorksheetExtensions
+internal static class WorksheetPartExtensions
 {
     internal static void SetCellValue(this WorksheetPart worksheetPart, SpreadsheetDocument document, CellObject cellObject)
     {
