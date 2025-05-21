@@ -4,6 +4,9 @@ namespace WorkbookSharp.Cells;
 
 internal class CellReference
 {
+    private static readonly Regex _regexRow = new Regex(@"\d+", RegexOptions.Compiled);
+    private static readonly Regex _regexColumn = new Regex(@"[A-Za-z]+", RegexOptions.Compiled);
+
     public const uint MAX_COLUMN = 16384;
     public const uint MAX_ROW = 1048576;
 
@@ -30,12 +33,10 @@ internal class CellReference
 
     internal static (string columnName, uint rowIndex, uint columnIndex) ParseAddress(string address)
     {
-        Regex regexRow = new Regex(@"\d+");
-        Match matchRow = regexRow.Match(address);
+        Match matchRow = _regexRow.Match(address);
         var rowIndex = uint.Parse(matchRow.Value);
 
-        Regex regexColumn = new Regex("[A-Za-z]+");
-        Match matchColumn = regexColumn.Match(address);
+        Match matchColumn = _regexColumn.Match(address);
         var columnName = matchColumn.Value.ToUpper();
 
         int columnIndex = 0;
