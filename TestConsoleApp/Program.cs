@@ -10,6 +10,7 @@
 // Extension methods: add amount (thousand separator no of decimals)
 // Autofit formula columns (HARD to do)
 // Autofit not working 100% yet (check test_to_Excel)
+// Autofit not working for merged cells (check test_to_Excel)
 
 var test = new Test();
 
