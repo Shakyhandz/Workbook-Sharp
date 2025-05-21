@@ -84,6 +84,7 @@ public class Test
             worksheet2.FontFamily = XlFontFamily.Arial;
             worksheet2.FontSize = 14;
             worksheet2.AutoFitColumns = true;
+            worksheet2.ShowGridlines = false;
 
             worksheet2.Cells[15, 15].Value = 6321456;
             worksheet2.SetValue("J5", "Thunder", new Style { FontSize = 12, });

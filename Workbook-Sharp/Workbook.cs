@@ -97,6 +97,11 @@ public class Workbook
             {
                 worksheetPart.AutoSizeCells(ws.MaxColumnWidths);
             }
+
+            if (!ws.ShowGridlines)
+            {
+                worksheetPart.ShowGridlines(ws.ShowGridlines);
+            }
         }
 
         document.Save();
@@ -116,18 +121,6 @@ public class Workbook
         DefaultRowHeight = rowHeight,
         CustomHeight = true
     });
-    */
-
-    /* TODO: show gridlines
-     var sheetViews = new SheetViews(
-        new SheetView
-        {
-            WorkbookViewId = 0,
-            ShowGridLines = false
-        }
-    );
-    
-    worksheet.Append(sheetViews);
     */
 
 

@@ -52,7 +52,7 @@ internal static class WorksheetPartExtensions
         }
 
         // Insert the cell value        
-        Cell result = GetCellInWorksheet(worksheetPart, cellObject.CellReference.ColumnName, cellObject.CellReference.RowIndex);
+        Cell result = GetOrInsertCellInWorksheet(worksheetPart, cellObject.CellReference);
 
         result.CellValue = cellValue;
         result.DataType = dataType;
@@ -63,7 +63,7 @@ internal static class WorksheetPartExtensions
 
     internal static void SetCellFormula(this WorksheetPart worksheetPart, Cells.CellFormula formula)
     {
-        var cell = GetCellInWorksheet(worksheetPart, formula.CellReference.ColumnName, formula.CellReference.RowIndex);
+        var cell = GetOrInsertCellInWorksheet(worksheetPart, formula.CellReference);
 
         cell.CellReference = formula.CellReference.Address; // optional but helps with structure
         cell.CellFormula = new DocumentFormat.OpenXml.Spreadsheet.CellFormula { Text = formula.ParseFormula() };
@@ -73,28 +73,17 @@ internal static class WorksheetPartExtensions
     internal static void SetCellStyle(this WorksheetPart worksheetPart, Cells.CellStyle xlStyle)
     {
         // Set the style for the cell
-        var cell = GetCellInWorksheet(worksheetPart, xlStyle.CellReference.ColumnName, xlStyle.CellReference.RowIndex);
+        var cell = GetOrInsertCellInWorksheet(worksheetPart, xlStyle.CellReference);
         cell.StyleIndex = xlStyle.StyleIndex;
     }
 
     internal static void MergeCells(this WorksheetPart worksheetPart, CellMerge merge)
     {
         // Verify if the specified cells exist, and if they do not exist, create them.
-        GetCellInWorksheet(worksheetPart, merge.CellReference.ColumnName, merge.CellReference.RowIndex);
-        GetCellInWorksheet(worksheetPart, merge.ToCellReference.ColumnName, merge.ToCellReference.RowIndex);
+        GetOrInsertCellInWorksheet(worksheetPart, merge.CellReference);
+        GetOrInsertCellInWorksheet(worksheetPart, merge.ToCellReference);
 
-        MergeCells mergeCells;
-        var worksheet = worksheetPart.Worksheet;
-
-        if (worksheet.Elements<MergeCells>().Count() > 0)
-        {
-            mergeCells = worksheet.Elements<MergeCells>().First();
-        }
-        else
-        {
-            mergeCells = new MergeCells();
-            worksheet.InsertWorksheetElementInOrder(mergeCells);
-        }
+        var mergeCells = worksheetPart.Worksheet.GetOrInsertWorksheetElement<MergeCells>();
 
         // Create the merged cell and append it to the MergeCells collection.
         MergeCell mergeCell = new MergeCell
@@ -107,7 +96,7 @@ internal static class WorksheetPartExtensions
 
     internal static void AutoSizeCells(this WorksheetPart worksheetPart, Dictionary<uint, double> maxColumnWidths)
     {
-        var columns = new Columns();
+        var columns = worksheetPart.Worksheet.GetOrInsertWorksheetElement<Columns>();
 
         foreach (var kvp in maxColumnWidths.OrderBy(x => x.Key))
         {
@@ -119,57 +108,50 @@ internal static class WorksheetPartExtensions
                 CustomWidth = true
             });
         }
-
-        // TODO: Check if element already exists
-        worksheetPart.Worksheet.InsertWorksheetElementInOrder(columns);
     }
 
-    private static Cell GetCellInWorksheet(WorksheetPart worksheetPart, string columnName, uint rowIndex)
+    internal static void ShowGridlines(this WorksheetPart worksheetPart, bool showGridlines)
     {
-        DocumentFormat.OpenXml.Spreadsheet.Worksheet worksheet = worksheetPart.Worksheet;
-        SheetData sheetData = worksheet.GetFirstChild<SheetData>() ?? worksheet.AppendChild(new SheetData());
-        string cellReference = columnName + rowIndex;
+        var sheetViews = worksheetPart.Worksheet.GetOrInsertWorksheetElement<SheetViews>();
 
-        // If the worksheet does not contain a row with the specified row index, insert one.
-        Row row;
-
-        if (sheetData.Elements<Row>().Where(r => r.RowIndex is not null && r.RowIndex == rowIndex).Count() != 0)
+        var sheetView = sheetViews.Elements<SheetView>().FirstOrDefault();
+        
+        if (sheetView == null)
         {
-            row = sheetData.Elements<Row>().Where(r => r.RowIndex is not null && r.RowIndex == rowIndex).First();
-        }
-        else
-        {
-            row = new Row() { RowIndex = rowIndex };
-            sheetData.Append(row);
-        }
-
-        // If there is not a cell with the specified column name, insert one.
-        if (row.Elements<Cell>().Where(c => c.CellReference is not null && c.CellReference.Value == columnName + rowIndex).Count() > 0)
-        {
-            return row.Elements<Cell>().Where(c => c.CellReference is not null && c.CellReference.Value == cellReference).First();
-        }
-        else
-        {
-            // Cells must be in sequential order according to CellReference. Determine where to insert the new cell.
-            Cell? refCell = null;
-
-            foreach (Cell cell in row.Elements<Cell>())
+            sheetView = new SheetView
             {
-                if (string.Compare(cell.CellReference?.Value, cellReference, true) > 0)
-                {
-                    refCell = cell;
-                    break;
-                }
-            }
-
-            Cell newCell = new Cell
-            {
-                CellReference = cellReference
+                WorkbookViewId = 0,
+                ShowGridLines = showGridlines
             };
 
-            row.InsertBefore(newCell, refCell);
-
-            return newCell;
+            sheetViews.Append(sheetView);
         }
+        else
+        {
+            sheetView.ShowGridLines = showGridlines;
+        }
+    }
+
+    private static Cell GetOrInsertCellInWorksheet(WorksheetPart worksheetPart, CellReference cellReference)
+    {
+        var worksheet = worksheetPart.Worksheet;
+        var sheetData = worksheet.GetFirstChild<SheetData>() ?? worksheet.AppendChild(new SheetData());
+
+        // Get or create the row
+        var row = sheetData.Elements<Row>().Where(r => r.RowIndex?.Value == cellReference.RowIndex).FirstOrDefault();
+        row ??= sheetData.AppendChild(new Row { RowIndex = cellReference.RowIndex });
+
+        // Get or create the cell
+        var cell = row.Elements<Cell>().Where(c => c.CellReference?.Value == cellReference.Address).FirstOrDefault();
+        if (cell != null)
+            return cell;
+
+        // Find the correct insertion point to keep cells in order
+        var refCell = row.Elements<Cell>().Where(c => string.Compare(c.CellReference?.Value, cellReference.Address, StringComparison.OrdinalIgnoreCase) > 0).FirstOrDefault();
+
+        var newCell = new Cell { CellReference = cellReference.Address };
+        row.InsertBefore(newCell, refCell);
+
+        return newCell;
     }
 }

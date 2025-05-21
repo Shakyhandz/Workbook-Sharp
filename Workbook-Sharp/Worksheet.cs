@@ -18,6 +18,7 @@ public class Worksheet
     /// Defaults to true
     /// </summary>
     public bool AutoFitColumns { get; set; } = true;
+    public bool ShowGridlines { get; set; } = true;
 
     internal Worksheet(Workbook workbook, string name)
     {

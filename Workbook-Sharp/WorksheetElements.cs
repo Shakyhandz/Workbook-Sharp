@@ -47,15 +47,27 @@ internal static class WorksheetElements
         typeof(WorksheetExtensionList)
     };
 
-    internal static void InsertWorksheetElementInOrder(this DocumentFormat.OpenXml.Spreadsheet.Worksheet worksheet, OpenXmlElement newElement)
+    /// <summary>
+    /// Returns the first matching child element of type T from the worksheet.
+    /// If it doesn't exist, a new one is inserted in schema-compliant order.
+    /// </summary>
+    internal static T GetOrInsertWorksheetElement<T>(this DocumentFormat.OpenXml.Spreadsheet.Worksheet worksheet) where T : OpenXmlElement, new()
     {
-        var newElementType = newElement.GetType();
-        int newIndex = _orderOfElements.IndexOf(newElementType);
+        // Check if element already exists
+        var existing = worksheet.Elements<T>().FirstOrDefault();
+
+        if (existing is not null)
+            return existing;
+
+        // Validate type is allowed
+        int newIndex = _orderOfElements.IndexOf(typeof(T));
 
         if (newIndex == -1)
-            throw new InvalidOperationException("Element type is not valid for Worksheet children.");
+            throw new InvalidOperationException($"Element type {typeof(T).Name} is not valid for Worksheet children.");
 
-        // Find the first existing child that comes after the new element
+        var newElement = new T();
+
+        // Insert in correct position
         foreach (var child in worksheet.Elements())
         {
             int childIndex = _orderOfElements.IndexOf(child.GetType());
@@ -63,12 +75,12 @@ internal static class WorksheetElements
             if (childIndex > newIndex)
             {
                 worksheet.InsertBefore(newElement, child);
-                return;
+                return newElement;
             }
         }
 
         // If no such child exists, append to the end
         worksheet.Append(newElement);
+        return newElement;
     }
-
 }
