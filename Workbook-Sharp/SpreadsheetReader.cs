@@ -1,7 +1,7 @@
 ﻿using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 
-namespace AsXl;
+namespace WorkbookSharp;
 
 public class SpreadsheetReader
 {
@@ -59,7 +59,7 @@ public class SpreadsheetReader
                 throw new Exception("Unable to find parent worksheet.");
             }
 
-            if (parent is Worksheet ws &&
+            if (parent is DocumentFormat.OpenXml.Spreadsheet.Worksheet ws &&
                 ws?.WorksheetPart?.OpenXmlPackage is SpreadsheetDocument ssDoc)
             {
                 var sstPart = ssDoc?.WorkbookPart?.GetPartsOfType<SharedStringTablePart>().FirstOrDefault();
@@ -73,7 +73,7 @@ public class SpreadsheetReader
         }
         else if (cell.DataType.Value == CellValues.Boolean)
         {
-            value = value == "0"
+            value = value == "0" || value.Equals("false", StringComparison.OrdinalIgnoreCase)
                     ? "FALSE"
                     : "TRUE";
         }

@@ -1,12 +1,11 @@
-﻿using AsXl;
-using WorkbookSharp;
+﻿using WorkbookSharp;
 using WorkbookSharp.Styles;
 
 namespace TestConsoleApp;
 
-public class Test
+internal class Test
 {
-    public async Task TestToExcel(string fileName)
+    internal async Task TestToExcel(string fileName)
     {
         var testData = new[]
         {
@@ -36,7 +35,7 @@ public class Test
         File.WriteAllBytes(fileName, bytes);
     }
 
-    public async Task TestSheets(string fileName)
+    internal async Task TestSheets(string fileName)
     {
         var workbook = new Workbook();
 
@@ -103,9 +102,33 @@ public class Test
         File.WriteAllBytes(fileName, bytes);
     }
 
-    public async Task TestReadExcelFile(string fileName)
+    internal async Task TestReadExcelFile(string fileName)
     {
         await Task.Yield();
         new SpreadsheetReader().Read("test.xlsx");
+    }
+
+    internal async Task TestParseExcelFile(string fileName)
+    {
+        await Task.Yield();
+
+        var parser = new ExcelParser
+        {
+            FilePath = fileName,
+            //HeaderLength = 4,
+            LastRow = 11,
+        };
+
+        var col = parser.Execute()
+                        .Select(x => new
+                        {
+
+                            Id = int.Parse((string)x.Id),
+                            TypeId = Guid.Parse((string)x.TypeId),
+                            Name = (string)x.Name,
+                            IsActive = bool.Parse((string)x.IsActive),
+                            Date = x.Date != null ? (string)x.Date : "",
+                        })
+                        .ToList();
     }
 }
