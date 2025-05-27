@@ -5,36 +5,13 @@ using WorkbookSharp.Cells;
 
 namespace WorkbookSharp;
 
-public class ExcelParser : IDisposable
+internal class ExcelParser : IExcelParser, IDisposable
 {
-    /// <summary>
-    /// If left empty the first sheet will be used.
-    /// </summary>
-    public string SheetName { get; set; } = "";
-    
-    /// <summary>
-    /// Path and file name to an open xml Excel file
-    /// </summary>
+    public string SheetName { get; set; } = "";   
     public string FilePath { get; set; } = "";
-
-    /// <summary>
-    /// Set if header row isn't row 1
-    /// </summary>
-    public uint HeaderRow { get; set; } = 1;
-    
-    /// <summary>
-    /// Set if header doesn't start at column 1
-    /// </summary>
+    public uint HeaderRow { get; set; } = 1;    
     public uint HeaderStartColumn { get; set; } = 1;
-
-    /// <summary>
-    /// Set if there are columns after the data being parsed
-    /// </summary>
     public int? HeaderLength { get; set; }
-
-    /// <summary>
-    /// Set if there are rows after the data being parsed
-    /// </summary>
     public uint? LastRow { get; set; }    
     
     private Dictionary<string, int> mHeaders = [];

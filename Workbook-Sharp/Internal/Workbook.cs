@@ -6,12 +6,12 @@ using WorkbookSharp.Styles;
 
 namespace WorkbookSharp;
 
-public class Workbook
+internal class Workbook : IWorkbook
 {
     private List<Worksheet> _worksheets = [];
     internal StyleManager styleManager = new();
     
-    public Worksheet AddWorksheet(string name = "")
+    public IWorksheet AddWorksheet(string name = "")
     {
         if (string.IsNullOrEmpty(name.Trim()))
             name = $"Sheet{_worksheets.Count + 1}";

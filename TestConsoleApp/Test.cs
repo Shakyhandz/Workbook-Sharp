@@ -1,5 +1,6 @@
 ﻿using WorkbookSharp;
 using WorkbookSharp.Styles;
+using static WorkbookSharp.WorkbookExtensions;
 
 namespace TestConsoleApp;
 
@@ -31,20 +32,69 @@ internal class Test
             new { Id = 20, TypeId = new Guid("30AB4A9B-F21B-4B07-B380-FA426745C81C"), Name = "Water", IsActive = false, Date = new DateTime(2020, 02, 18) },
         };
 
-        var bytes = await testData.ToExcel(fontFamily: XlFontFamily.Calibri, fontSize: 9, columnStyles: new() { { 5, new Style { Border = XlBorder.Around, DateFormat = XlDateFormat.DateHoursMinutes } } });
+        var bytes = await testData.ToExcel(new SpreadsheetExportOptions
+        {
+            SheetName = "Report",
+            FontFamily = XlFontFamily.Calibri,
+            FontSize = 9,
+            ColumnStyles = new()
+            {
+                { 5, new Style { Border = XlBorder.Around, DateFormat = XlDateFormat.DateHoursMinutes } }
+            }
+        });
+
         File.WriteAllBytes(fileName, bytes);
+    }
+
+    internal async Task TestToExcelMultipleSheets(string fileName)
+    {
+        var testData = new[]
+        {
+            new { Id = 1, TypeId = new Guid("9B657229-DCA0-44DE-BC68-01B67D0C5030"), Name = "Doppel", IsActive = false, Date = new DateTime(2019, 08, 01) },
+            new { Id = 2, TypeId = new Guid("2C44A758-3944-45E9-84CD-07DC3C99ED2E"), Name = "Marketing", IsActive = false, Date = new DateTime(2019, 09, 23) },
+            new { Id = 3, TypeId = new Guid("B4171BB4-CEED-4DA4-8BDC-1010A39E33FA"), Name = "Native", IsActive = true, Date = new DateTime(2019, 09, 23) },
+            new { Id = 4, TypeId = new Guid("9CA58FEE-4F2A-4401-80CD-25E6B7D09037"), Name = "Alpro", IsActive = true, Date = new DateTime(2019, 11, 05) },
+            new { Id = 5, TypeId = new Guid("F21F1829-5144-460F-8F86-35F30D4B3D05"), Name = "Europe", IsActive = false, Date = new DateTime(2019, 11, 04) },
+            new { Id = 6, TypeId = new Guid("9F09CAA5-9E55-40F2-9FFB-46C78BDCD01D"), Name = "Samsung", IsActive = false, Date = new DateTime(2019, 11, 11) },
+            new { Id = 7, TypeId = new Guid("03474FDD-1436-480C-8ECB-52F185DAD5D8"), Name = "Signal", IsActive = false, Date = new DateTime(2019, 10, 03) },
+            new { Id = 8, TypeId = new Guid("7DB1BBA4-5828-4D02-8F6B-54544ACB8408"), Name = "Social", IsActive = true, Date = new DateTime(2019, 11, 11) },
+            new { Id = 9, TypeId = new Guid("B70637D2-E109-46FD-98BB-90F35D831561"), Name = "Hub", IsActive = false, Date = new DateTime(2019, 11, 11) },
+            new { Id = 10, TypeId = new Guid("0D63613B-A496-45D8-BEDA-9F6882DBA900"), Name = "Iduna", IsActive = false, Date = new DateTime(2019, 10, 03) },
+            new { Id = 11, TypeId = new Guid("38310602-253A-42AB-AB86-A302290C5245"), Name = "Clark", IsActive = false, Date = new DateTime(2019, 10, 04) },
+            new { Id = 12, TypeId = new Guid("77D59C80-C276-4CB8-B5EC-AC84F72013AA"), Name = "Editorial", IsActive = false, Date = new DateTime(2020, 02, 07) },
+            new { Id = 13, TypeId = new Guid("C8CAF791-30A0-45AB-9244-B3B48B4E3109"), Name = "Juice", IsActive = false, Date = new DateTime(2020, 01, 10) },
+            new { Id = 14, TypeId = new Guid("34045D2C-7944-4995-973A-C1318361A3EA"), Name = "Plus", IsActive = false, Date = new DateTime(2020, 01, 10) },
+            new { Id = 15, TypeId = new Guid("DE47E97C-14B4-4A05-8465-C97C44BB2A02"), Name = "Avira", IsActive = false, Date = new DateTime(2020, 02, 21) },
+            new { Id = 16, TypeId = new Guid("9B1A31DE-8E9F-4E45-B129-CD3BC4FAC91D"), Name = "Truck", IsActive = false, Date = new DateTime(2020, 02, 27) },
+            new { Id = 17, TypeId = new Guid("C2C87405-C049-4CB4-A5BD-DB6B46220495"), Name = "Forman", IsActive = true, Date = new DateTime(2020, 03, 16) },
+            new { Id = 18, TypeId = new Guid("C5EB3C14-07FC-4E4B-8B61-EA7164B13DAF"), Name = "Penny", IsActive = false, Date = new DateTime(2020, 03, 30) },
+            new { Id = 19, TypeId = new Guid("700DBB7F-AD75-4F5B-A782-F84C8EB59C9E"), Name = "Phone", IsActive = false, Date = new DateTime(2020, 02, 18) },
+            new { Id = 20, TypeId = new Guid("30AB4A9B-F21B-4B07-B380-FA426745C81C"), Name = "Water", IsActive = false, Date = new DateTime(2020, 02, 18) },
+        };
+
+        //var sheets = new[] 
+        //{
+        //    new SpreadsheetExportSet(testData.Take(7), (SpreadsheetExportOptions?)null),
+        //    new SpreadsheetExportSet(testData.Skip(7), null),
+        //};
+        var sheets = new[] 
+        {
+            (testData.Take(7), (SpreadsheetExportOptions?)null),
+            (testData.Skip(7), null),
+        };
+        await sheets.ToExcelMulti(fileName);
     }
 
     internal async Task TestSheets(string fileName)
     {
-        var workbook = new Workbook();
+        var workbook = WorkbookFactory.CreateWorkbook();
 
         {
             var worksheet1 = workbook.AddWorksheet();
             worksheet1.FontFamily = XlFontFamily.Calibri;
             worksheet1.FontSize = 9;
             worksheet1.AutoFitColumns = true;
-
+            
             worksheet1.SetValue("A1", "Test1");
             worksheet1.SetValue("A2", "Test2");
             worksheet1.SetValue("A3", 15000, new Style { UseThousandSeparator = true });
@@ -102,22 +152,15 @@ internal class Test
         File.WriteAllBytes(fileName, bytes);
     }
 
-    internal async Task TestReadExcelFile(string fileName)
-    {
-        await Task.Yield();
-        new SpreadsheetReader().Read("test.xlsx");
-    }
-
     internal async Task TestParseExcelFile(string fileName)
     {
         await Task.Yield();
 
-        var parser = new ExcelParser
-        {
-            FilePath = fileName,
-            //HeaderLength = 4,
-            LastRow = 11,
-        };
+        var parser = WorkbookFactory.CreateExcelParser();
+
+        parser.FilePath = fileName;
+        //parser.HeaderLength = 4;
+        parser.LastRow = 11;        
 
         var col = parser.Execute()
                         .Select(x => new

@@ -3,7 +3,7 @@ using WorkbookSharp.Styles;
 
 namespace WorkbookSharp;
 
-public class Worksheet
+internal class Worksheet : IWorksheet
 {
     private Workbook _workbook;    
     private string _sheetName;
@@ -14,9 +14,6 @@ public class Worksheet
 
     public XlFontFamily FontFamily { get; set; } = XlFontFamily.Default;
     public double? FontSize { get; set; }
-    /// <summary>
-    /// Defaults to true
-    /// </summary>
     public bool AutoFitColumns { get; set; } = true;
     public bool ShowGridlines { get; set; } = true;
 
@@ -26,7 +23,7 @@ public class Worksheet
         _sheetName = name;        
     }
 
-    public CellRange Cells => new CellRange(this, 1, 1, CellReference.MAX_ROW, CellReference.MAX_COLUMN);
+    public CellRange Cells => new CellRange(this);
 
     public void SetValue(string cellReference, object? value, Style? style = null) => 
         AddCellObject(new CellObject(cellReference, value, GetStyleIndex(style, value)), style);

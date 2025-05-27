@@ -2,7 +2,7 @@
 
 namespace WorkbookSharp.Cells;
 
-public static class ExcelFormulaValidator
+internal static class ExcelFormulaValidator
 {
     private static readonly Regex CellRangeWithSpace = new Regex(@"[A-Z]+\d+ [A-Z]+\d+", RegexOptions.Compiled);
     private static readonly Regex SheetRefNoQuotes = new Regex(@"\b([^\s'\[]+\s[^\s'\[]+)!([A-Z]+\d+)", RegexOptions.Compiled);
@@ -10,7 +10,7 @@ public static class ExcelFormulaValidator
     private static readonly Regex FormattedNumber = new Regex(@"(?<!\d),(?=\d{3})", RegexOptions.Compiled); // commas in numbers
     private static readonly Regex FunctionCall = new Regex(@"\b[A-Z][A-Z0-9]*\(", RegexOptions.Compiled);
 
-    public static List<string> ValidateFormula(string? formula)
+    internal static List<string> ValidateFormula(string? formula)
     {
         var errors = new List<string>();
 

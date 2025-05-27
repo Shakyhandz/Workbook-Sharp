@@ -2,8 +2,27 @@
 
 namespace WorkbookSharp.Cells;
 
-public class CellRange(Worksheet _worksheet, uint _startRow, uint _startColumn, uint _endRow, uint _endColumn)
+public class CellRange : ICellRange
 {
+    private Worksheet _worksheet;
+    private uint _startRow;
+    private uint _startColumn;
+    private uint _endRow;
+    private uint _endColumn;
+
+    internal CellRange(Worksheet worksheet)
+    {
+        _worksheet = worksheet;
+        _startRow = 1;
+        _startColumn = 1;
+        _endRow = CellReference.MAX_ROW;
+        _endColumn = CellReference.MAX_COLUMN;
+
+        // No need to validate here, as the constructor sets allowed ranges
+        //CellReference.ValidateCell(_startRow, _startColumn);
+        //CellReference.ValidateCell(_endRow, _endColumn);
+    }
+
     public object? Value
     {
         get => _worksheet.Actions.TryGetValue((_startRow, _startColumn, _startRow, _startColumn), out var action) ? action : null;
@@ -40,7 +59,7 @@ public class CellRange(Worksheet _worksheet, uint _startRow, uint _startColumn, 
         set => _worksheet.SetStyle((_startRow, _startColumn), (_endRow, _endColumn), value);
     }
 
-    public CellRange this[string address]
+    public ICellRange this[string address]
     {
         get
         {
@@ -61,7 +80,7 @@ public class CellRange(Worksheet _worksheet, uint _startRow, uint _startColumn, 
         }
     }
 
-    public CellRange this[uint row, uint col]
+    public ICellRange this[uint row, uint col]
     {
         get
         {
@@ -76,7 +95,7 @@ public class CellRange(Worksheet _worksheet, uint _startRow, uint _startColumn, 
         }
     }
 
-    public CellRange this[uint fromRow, uint fromCol, uint toRow, uint toCol]
+    public ICellRange this[uint fromRow, uint fromCol, uint toRow, uint toCol]
     {
         get
         {

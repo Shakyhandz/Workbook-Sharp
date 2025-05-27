@@ -8,18 +8,18 @@ internal class CellFormula : CellAction
     private static readonly Regex R1C1Regex = new Regex(@"R(?<row>(\[\-?\d+\])|\d+)?C(?<col>(\[\-?\d+\])|\d+)?", RegexOptions.Compiled);
 
     private string? _formula;
-    public string? Formula => _formula;
+    internal string? Formula => _formula;
     
     private bool _isRelative;
-    public bool IsRelative => _isRelative;
+    internal bool IsRelative => _isRelative;
     
-    public CellFormula(string address, string? formula, bool isRelative, uint? styleIndex) : base(address, styleIndex)
+    internal CellFormula(string address, string? formula, bool isRelative, uint? styleIndex) : base(address, styleIndex)
     {
         _formula = formula?.TrimStart('='); // Remove leading '='
         _isRelative = isRelative;
     }
 
-    public CellFormula((uint row, uint column) cellReference, string? formula, bool isRelative, uint? styleIndex) : base(cellReference, styleIndex)
+    internal CellFormula((uint row, uint column) cellReference, string? formula, bool isRelative, uint? styleIndex) : base(cellReference, styleIndex)
     {
         _formula = formula?.TrimStart('='); // Remove leading '='
         _isRelative = isRelative;

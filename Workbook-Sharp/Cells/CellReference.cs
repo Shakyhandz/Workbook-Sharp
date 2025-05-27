@@ -7,13 +7,13 @@ internal class CellReference
     private static readonly Regex _regexRow = new Regex(@"\d+", RegexOptions.Compiled);
     private static readonly Regex _regexColumn = new Regex(@"[A-Za-z]+", RegexOptions.Compiled);
 
-    public const uint MAX_COLUMN = 16384;
-    public const uint MAX_ROW = 1048576;
+    internal const uint MAX_COLUMN = 16384;
+    internal const uint MAX_ROW = 1048576;
 
-    public uint ColumnIndex { get; set; }
-    public uint RowIndex { get; set; }
-    public string ColumnName { get; set; } = "";
-    public string Address => $"{ColumnName}{RowIndex}";
+    internal uint ColumnIndex { get; set; }
+    internal uint RowIndex { get; set; }
+    internal string ColumnName { get; set; } = "";
+    internal string Address => $"{ColumnName}{RowIndex}";
 
     internal CellReference(string address)
     {

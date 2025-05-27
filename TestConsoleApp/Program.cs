@@ -14,9 +14,10 @@
 
 var test = new Test();
 
-//await test.TestToExcel($"test_to_Excel_{DateTime.Now:yyyyMMddHHmmss}.xlsx");
+await test.TestToExcel($"test_to_Excel_{DateTime.Now:yyyyMMddHHmmss}.xlsx");
+await test.TestToExcelMultipleSheets($"test_to_Excel_multi_{DateTime.Now:yyyyMMddHHmmss}.xlsx");
 //await test.TestSheets($"test_{DateTime.Now:yyyyMMddHHmmss}.xlsx");
 //await test.TestReadExcelFile("test.xlsx");
-await test.TestParseExcelFile("test_parser.xlsx");
+//await test.TestParseExcelFile("test_parser.xlsx");
 
 
