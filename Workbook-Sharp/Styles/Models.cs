@@ -38,6 +38,13 @@ public enum XlHorizontalAlignment
     Center = 2,
 }
 
+public enum XlVerticalAlignment
+{
+    Top = 0,
+    Center = 1,
+    Bottom = 2,
+}
+
 public enum XlFontStrikeoutStyle
 {
     None = 0,

@@ -1,5 +1,7 @@
 ﻿using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Spreadsheet;
+using System.Drawing;
+using OXColor = DocumentFormat.OpenXml.Spreadsheet.Color;
 
 namespace WorkbookSharp.Styles;
 
@@ -22,7 +24,7 @@ internal class StyleManager
 
     private uint _nextNumberFormatId = 164; // Built-in formats end at 163
 
-    public StyleManager()
+    internal  StyleManager()
     {
         // Just a stupid hardcoded Excel thing that these are the first two fills even if you override them
 
@@ -38,6 +40,17 @@ internal class StyleManager
 
         // Add default empty style (index 0)
         _ = GetStyleIndex(new Style());
+    }
+
+    internal Style GetStyleFromIndex(uint index)
+    {
+        foreach (var kvp in _styleIndexMap)
+        {
+            if (kvp.Value == index)
+                return kvp.Key.Clone();
+        }
+
+        throw new KeyNotFoundException($"No style found for index {index}");
     }
 
     internal uint GetStyleIndex(Style style)
@@ -64,13 +77,7 @@ internal class StyleManager
             ApplyNumberFormat = numberFormatId >= 164,         
         };
 
-        var alignment = style.HorizontalAlignment switch
-        {
-            XlHorizontalAlignment.Center => new Alignment { Horizontal = HorizontalAlignmentValues.Center },
-            XlHorizontalAlignment.Right => new Alignment { Horizontal = HorizontalAlignmentValues.Right },
-            XlHorizontalAlignment.Left => new Alignment { Horizontal = HorizontalAlignmentValues.Left },
-            _ => null
-        };
+        var alignment = GetAlignment(style);
 
         if (alignment != null)
         {
@@ -131,6 +138,13 @@ internal class StyleManager
         if (style.FontDecoration.HasFlag(XlFontDecoration.Strikeout)) 
             font.Append(new Strike());
 
+        if (style.FontColor != System.Drawing.Color.Empty)
+        {
+            var colorHex = GetColorHex(style.FontColor);
+
+            font.Append(new OXColor { Rgb = colorHex });
+        }
+
         var key = font.OuterXml;
         if (_fontMap.TryGetValue(key, out var existingId))
             return existingId;
@@ -151,15 +165,15 @@ internal class StyleManager
         }
         else
         {
-            var foregroundColor = TranslateForeground(style.FillColor);
+            var color = GetColorHex(style.FillColor);
 
             fill = new Fill
             {
                 PatternFill = new PatternFill
                 {
                     PatternType = PatternValues.Solid,
-                    ForegroundColor = foregroundColor,
-                    BackgroundColor = new BackgroundColor { Rgb = foregroundColor.Rgb }
+                    ForegroundColor = new ForegroundColor { Rgb = color },
+                    BackgroundColor = new BackgroundColor { Rgb = color },
                 }
             };
         }
@@ -174,23 +188,19 @@ internal class StyleManager
         return id;
     }
 
-    private static Dictionary<System.Drawing.Color, string> _foregroundCache = new();
+    private static Dictionary<System.Drawing.Color, string> _colorCache = new();
 
-    private ForegroundColor TranslateForeground(System.Drawing.Color fillColor)
+    private string GetColorHex(System.Drawing.Color color)
     {
-        if (_foregroundCache.TryGetValue(fillColor, out var cachedValue))
-            return new ForegroundColor { Rgb = new HexBinaryValue { Value = cachedValue } };
+        if (_colorCache.TryGetValue(color, out var cachedValue))
+            return cachedValue;
 
-        var color = System.Drawing
-                          .ColorTranslator
-                          .ToHtml(System.Drawing.Color.FromArgb(fillColor.A, fillColor.R, fillColor.G, fillColor.B))
-                          .Replace("#", "");
+        var hexColor = ColorTranslator.ToHtml(System.Drawing.Color.FromArgb(color.A, color.R, color.G, color.B))
+                                      .Replace("#", "");
 
-        _foregroundCache[fillColor] = color;
-
-        return new ForegroundColor { Rgb = new HexBinaryValue { Value = color } };
+        _colorCache[color] = hexColor;
+        return hexColor;
     }
-    
 
     private uint AddBorder(Style style)
     {
@@ -329,6 +339,40 @@ internal class StyleManager
         });
 
         return id;
+    }
+
+    private Alignment? GetAlignment(Style style)
+    {
+        Alignment? alignment = null;
+
+        if (style.HorizontalAlignment != null || style.VerticalAlignment != null)
+        {
+            alignment = new Alignment();
+
+            if (style.HorizontalAlignment != null)
+            {
+                alignment.Horizontal = style.HorizontalAlignment.Value switch
+                {
+                    XlHorizontalAlignment.Left => HorizontalAlignmentValues.Left,
+                    XlHorizontalAlignment.Center => HorizontalAlignmentValues.Center,
+                    XlHorizontalAlignment.Right => HorizontalAlignmentValues.Right,
+                    _ => null
+                };
+            }
+
+            if (style.VerticalAlignment != null)
+            {
+                alignment.Vertical = style.VerticalAlignment.Value switch
+                {
+                    XlVerticalAlignment.Top => VerticalAlignmentValues.Top,
+                    XlVerticalAlignment.Center => VerticalAlignmentValues.Center,
+                    XlVerticalAlignment.Bottom => VerticalAlignmentValues.Bottom,
+                    _ => null
+                };
+            }
+        }
+
+        return alignment;
     }
      
 }
