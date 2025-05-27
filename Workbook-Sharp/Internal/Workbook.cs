@@ -10,7 +10,8 @@ internal class Workbook : IWorkbook
 {
     private List<Worksheet> _worksheets = [];
     internal StyleManager styleManager = new();
-    
+    public IWorksheet this[string sheetName] => _worksheets.FirstOrDefault(w => w.SheetName == sheetName) ?? throw new KeyNotFoundException($"There is no worksheet named '{sheetName}' in workbook");
+
     public IWorksheet AddWorksheet(string name = "")
     {
         if (string.IsNullOrEmpty(name.Trim()))
@@ -22,6 +23,8 @@ internal class Workbook : IWorkbook
 
         return sheet;
     }
+
+    internal void AddExistingWorksheet(Worksheet ws) => _worksheets.Add(ws);
 
     public async Task Save(string fileName)
     {

@@ -1,4 +1,5 @@
-﻿using WorkbookSharp;
+﻿using System.Reflection;
+using WorkbookSharp;
 using WorkbookSharp.Styles;
 using static WorkbookSharp.WorkbookExtensions;
 
@@ -6,6 +7,25 @@ namespace TestConsoleApp;
 
 internal class Test
 {
+    internal void GetEmbeddedResources()
+    {
+        var loader = WorkbookFactory.CreateTemplateLoader();
+        foreach (var t in loader.GetEmbeddedExcelTemplates(Assembly.GetExecutingAssembly()))
+            Console.WriteLine(t);
+    }
+
+    internal async Task TestTemplates()
+    {
+        var resource = "TestConsoleApp.Templates.test_template.xlsx";
+        var loader = WorkbookFactory.CreateTemplateLoader();
+        var workbook = loader.LoadWorkbookFromTemplate(Assembly.GetExecutingAssembly(), resource);
+
+        var sheet1 = workbook["Sheet1"];        
+        sheet1.SetValue("A1", "Updated!");
+        await workbook.Save($"template_copy_{DateTime.Now.Ticks}.xlsx");
+    }
+
+
     internal async Task TestToExcel(string fileName)
     {
         var testData = new[]
@@ -96,7 +116,7 @@ internal class Test
             worksheet1.AutoFitColumns = true;
             
             worksheet1.SetValue("A1", "Test1");
-            worksheet1.SetValue("A2", "Test2");
+            worksheet1.SetValue("A2", "Test2", new Style { FontColor = System.Drawing.Color.Red });
             worksheet1.SetValue("A3", 15000, new Style { UseThousandSeparator = true });
             worksheet1.SetValue("A4", true, new Style { FillColor = System.Drawing.Color.FromArgb(0xE7, 0xE6, 0xE6) });
             worksheet1.SetValue("A5", new DateTime(2025, 2, 2), new Style { FillColor = System.Drawing.Color.FromArgb(221, 235, 247) });

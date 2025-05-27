@@ -7,10 +7,11 @@ internal class Worksheet : IWorksheet
 {
     private Workbook _workbook;    
     private string _sheetName;
-    
+    private readonly CellRange _cells;
+
     internal string SheetName => _sheetName;
     internal Dictionary<(uint startRow, uint startCol, uint endRow, uint endCol), CellAction> Actions { get; set; } = [];
-    internal Dictionary<uint, double> MaxColumnWidths = new();
+    internal Dictionary<uint, double> MaxColumnWidths = [];
 
     public XlFontFamily FontFamily { get; set; } = XlFontFamily.Default;
     public double? FontSize { get; set; }
@@ -19,11 +20,16 @@ internal class Worksheet : IWorksheet
 
     internal Worksheet(Workbook workbook, string name)
     {
+        _cells = new CellRange(this);
         _workbook = workbook;
         _sheetName = name;        
     }
 
-    public CellRange Cells => new CellRange(this);
+    internal CellRange Cells => _cells; // internal for internal code
+    ICellRange IWorksheet.Cells => _cells; // public interface exposure
+    public ICellRange Dimension => Actions.Count == 0
+                                   ? Cells[1, 1, 1, 1] // default to A1 if no cells are touched
+                                   : Cells[Actions.Keys.Min(k => k.startRow), Actions.Keys.Min(k => k.startCol), Actions.Keys.Max(k => k.endRow), Actions.Keys.Max(k => k.endCol)];
 
     public void SetValue(string cellReference, object? value, Style? style = null) => 
         AddCellObject(new CellObject(cellReference, value, GetStyleIndex(style, value)), style);

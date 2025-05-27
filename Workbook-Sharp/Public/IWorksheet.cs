@@ -9,7 +9,8 @@ public interface IWorksheet
     double? FontSize { get; set; }
     bool AutoFitColumns { get; set; }
     bool ShowGridlines { get; set; }
-    CellRange Cells { get; }
+    ICellRange Cells { get; }
+    ICellRange Dimension { get; }
     void SetValue(string cellReference, object? value, Style? style = null);
     void SetValue((uint row, uint col) cellReference, object? value, Style? style = null);
     void SetFormula(string cellReference, string? formula, bool isRelative, Style? style = null);

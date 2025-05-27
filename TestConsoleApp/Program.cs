@@ -1,4 +1,5 @@
-﻿using TestConsoleApp;
+﻿using System.Reflection;
+using TestConsoleApp;
 
 // TODO:
 // if worksheet font family and size set, use them for all cells and set row height of sheet 
@@ -14,9 +15,11 @@
 
 var test = new Test();
 
-await test.TestToExcel($"test_to_Excel_{DateTime.Now:yyyyMMddHHmmss}.xlsx");
-await test.TestToExcelMultipleSheets($"test_to_Excel_multi_{DateTime.Now:yyyyMMddHHmmss}.xlsx");
-//await test.TestSheets($"test_{DateTime.Now:yyyyMMddHHmmss}.xlsx");
+//test.GetEmbeddedResources();
+//await test.TestTemplates();
+//await test.TestToExcel($"test_to_Excel_{DateTime.Now:yyyyMMddHHmmss}.xlsx");
+//await test.TestToExcelMultipleSheets($"test_to_Excel_multi_{DateTime.Now:yyyyMMddHHmmss}.xlsx");
+await test.TestSheets($"test_{DateTime.Now:yyyyMMddHHmmss}.xlsx");
 //await test.TestReadExcelFile("test.xlsx");
 //await test.TestParseExcelFile("test_parser.xlsx");
 
