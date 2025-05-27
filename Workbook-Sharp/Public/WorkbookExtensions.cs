@@ -4,9 +4,6 @@ namespace WorkbookSharp;
 
 public static class WorkbookExtensions
 {
-    //public record SpreadsheetExportSet<T>(IEnumerable<T> Collection, SpreadsheetExportOptions? Options = null);
-
-    //public static async Task ToExcel<T>(this IEnumerable<SpreadsheetExportSet<T>> collections, string fileName, CancellationToken cancellationToken = default)
     public static async Task ToExcelMulti<T>(this IEnumerable<(IEnumerable<T> collection, SpreadsheetExportOptions? options)> collections, string fileName, CancellationToken cancellationToken = default)
     {
         if (fileName.IsNothing())
@@ -30,7 +27,6 @@ public static class WorkbookExtensions
         await workbook.Save(fileName);
     }
 
-    //public static async Task<byte[]> ToExcel<T>(this IEnumerable<SpreadsheetExportSet<T>> collections, CancellationToken cancellationToken = default)
     public static async Task<byte[]> ToExcelMulti<T>(this IEnumerable<(IEnumerable<T> collection, SpreadsheetExportOptions? options)> collections, CancellationToken cancellationToken = default)
     {
         Workbook? workbook = null;
