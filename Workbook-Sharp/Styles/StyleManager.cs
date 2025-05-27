@@ -42,7 +42,7 @@ internal class StyleManager
         _ = GetStyleIndex(new Style());
     }
 
-    internal Style GetStyleFromIndex(uint index)
+    internal Style? GetStyleFromIndex(uint index)
     {
         foreach (var kvp in _styleIndexMap)
         {
@@ -50,7 +50,7 @@ internal class StyleManager
                 return kvp.Key.Clone();
         }
 
-        throw new KeyNotFoundException($"No style found for index {index}");
+        return null;
     }
 
     internal uint GetStyleIndex(Style style)

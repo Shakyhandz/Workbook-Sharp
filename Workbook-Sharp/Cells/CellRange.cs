@@ -37,25 +37,31 @@ public class CellRange : ICellRange
 
     public bool Merge
     {
+        get => _worksheet.Actions.TryGetValue((_startRow, _startColumn, _endRow, _endColumn), out var action) && action is CellMerge;
         set
         {
             if (_startColumn == _endColumn && _startRow == _endRow)
                 throw new ArgumentException("For a merge, the cell range must be more than one cell");
 
-            // TODO: Set Style to left- and up-most column
-            //var leftTopCell = _worksheet.Actions.GetValueOrDefault((_startRow, _startColumn, _startRow, _startColumn));
-            //_worksheet.MergeCells((_startRow, _startColumn), (_endRow, _endColumn), leftTopCell?.Style);
-
-            _worksheet.MergeCells((_startRow, _startColumn), (_endRow, _endColumn), null);
-
-            // TODO: Un-merge
+            if (value)
+            {
+                // Set Style to left- and up-most column
+                _worksheet.MergeCells((_startRow, _startColumn), (_endRow, _endColumn), _worksheet.Cells[_startRow, _startColumn].Style);
+            }
+            else
+            {
+                // Un-merge
+                if (_worksheet.Actions.TryGetValue((_startRow, _startColumn, _endRow, _endColumn), out var action) && action is CellMerge mergeOp)
+                    _worksheet.UnMergeCells(mergeOp);                    
+            }
         }
     }
 
     public Style? Style
     {
-        // TODO:
-        //get => _worksheet.Actions.TryGetValue((_startRow, _startColumn, _startRow, _startColumn), out var action) ? action.StyleIndex : null;
+        get => _worksheet.Actions.TryGetValue((_startRow, _startColumn, _startRow, _startColumn), out var action) && action.StyleIndex != null 
+               ? _worksheet._workbook.styleManager.GetStyleFromIndex(action.StyleIndex.Value) 
+               : null;
         set => _worksheet.SetStyle((_startRow, _startColumn), (_endRow, _endColumn), value);
     }
 

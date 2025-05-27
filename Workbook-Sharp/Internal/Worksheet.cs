@@ -5,7 +5,7 @@ namespace WorkbookSharp;
 
 internal class Worksheet : IWorksheet
 {
-    private Workbook _workbook;    
+    internal Workbook _workbook;    
     private string _sheetName;
     private readonly CellRange _cells;
 
@@ -31,6 +31,7 @@ internal class Worksheet : IWorksheet
                                    ? Cells[1, 1, 1, 1] // default to A1 if no cells are touched
                                    : Cells[Actions.Keys.Min(k => k.startRow), Actions.Keys.Min(k => k.startCol), Actions.Keys.Max(k => k.endRow), Actions.Keys.Max(k => k.endCol)];
 
+    // TODO: add bool "KeepStyle"?
     public void SetValue(string cellReference, object? value, Style? style = null) => 
         AddCellObject(new CellObject(cellReference, value, GetStyleIndex(style, value)), style);
     public void SetValue((uint row, uint col) cellReference, object? value, Style? style = null) => 
@@ -140,6 +141,13 @@ internal class Worksheet : IWorksheet
         {
             AddStyle(new CellStyle(cell.Address, obj.StyleIndex));
         }        
+    }
+
+    internal void UnMergeCells(CellMerge obj)
+    {
+        // Remove merge action
+        if (Actions.ContainsKey(obj.GetKey()))
+            Actions.Remove(obj.GetKey());
     }
 
     public void SetStyle(string cellReference, Style style) => AddStyle(new CellStyle(cellReference, GetStyleIndex(style)));
