@@ -132,20 +132,20 @@ internal class Test
             worksheet1.SetValue((6, 12), "what the h is long.MaxValue so long for");
             worksheet1.Cells["A6"].Style = new Style { FillColor = System.Drawing.Color.LimeGreen };
 
-            worksheet1.SetValue("C1", 15000, new Style { UseThousandSeparator = true, decimalPlaces = 2 });
-            worksheet1.SetValue("C2", 230000, new Style { UseThousandSeparator = true, decimalPlaces = 2 });
-            worksheet1.SetValue("C3", 7000.45, new Style { UseThousandSeparator = true, decimalPlaces = 2 });
-            worksheet1.SetFormula("C4", "=SUM(C1:C3)", false, new Style { UseThousandSeparator = true, decimalPlaces = 2 });
+            worksheet1.SetValue("C1", 15000, new Style { UseThousandSeparator = true, DecimalPlaces = 2 });
+            worksheet1.SetValue("C2", 230000, new Style { UseThousandSeparator = true, DecimalPlaces = 2 });
+            worksheet1.SetValue("C3", 7000.45, new Style { UseThousandSeparator = true, DecimalPlaces = 2 });
+            worksheet1.SetFormula("C4", "=SUM(C1:C3)", false, new Style { UseThousandSeparator = true, DecimalPlaces = 2 });
 
-            worksheet1.SetValue("D1", 67.5, new Style { UseThousandSeparator = true, decimalPlaces = 2 });
-            worksheet1.SetValue("D2", 30, new Style { UseThousandSeparator = true, decimalPlaces = 2 });
-            worksheet1.SetValue("D3", 22.42, new Style { UseThousandSeparator = true, decimalPlaces = 2 });
-            worksheet1.SetFormula("D4", "=SUM(R[-3]C:R[-1]C)", true, new Style { UseThousandSeparator = true, decimalPlaces = 2 });
+            worksheet1.SetValue("D1", 67.5, new Style { UseThousandSeparator = true, DecimalPlaces = 2 });
+            worksheet1.SetValue("D2", 30, new Style { UseThousandSeparator = true, DecimalPlaces = 2 });
+            worksheet1.SetValue("D3", 22.42, new Style { UseThousandSeparator = true, DecimalPlaces = 2 });
+            worksheet1.SetFormula("D4", "=SUM(R[-3]C:R[-1]C)", true, new Style { UseThousandSeparator = true, DecimalPlaces = 2 });
 
-            worksheet1.SetValue("D6", 67.5, new Style { UseThousandSeparator = true, decimalPlaces = 2 });
-            worksheet1.SetValue("D7", 30, new Style { UseThousandSeparator = true, decimalPlaces = 2 });
-            worksheet1.SetValue("D8", 22.42, new Style { UseThousandSeparator = true, decimalPlaces = 2 });
-            worksheet1.SetFormula("D5", "=SUM(R1C:R3C)", true, new Style { UseThousandSeparator = true, decimalPlaces = 2 });
+            worksheet1.SetValue("D6", 67.5, new Style { UseThousandSeparator = true, DecimalPlaces = 2 });
+            worksheet1.SetValue("D7", 30, new Style { UseThousandSeparator = true, DecimalPlaces = 2 });
+            worksheet1.SetValue("D8", 22.42, new Style { UseThousandSeparator = true, DecimalPlaces = 2 });
+            worksheet1.SetFormula("D5", "=SUM(R1C:R3C)", true, new Style { UseThousandSeparator = true, DecimalPlaces = 2 });
 
         }
         {
@@ -162,7 +162,7 @@ internal class Test
             worksheet2.SetValue("B4", true);
             worksheet2.SetValue("B5", new DateTime(2025, 2, 2));
             worksheet2.SetValue("B6", 0.2, new Style { IsPercentage = true });
-            worksheet2.SetValue("B7", 0.23M, new Style { decimalPlaces = 4 });
+            worksheet2.SetValue("B7", 0.23M, new Style { DecimalPlaces = 4 });
             worksheet2.SetValue("B8", long.MaxValue);
             worksheet2.MergeCells("B8", "C9");
             worksheet2.SetValue((6, 12), "what the h is long.MaxValue so long for");

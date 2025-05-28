@@ -261,10 +261,10 @@ internal class StyleManager
     {
         if (style.IsPercentage)
         {
-            if (style.decimalPlaces == null || style.decimalPlaces == 0)
+            if (style.DecimalPlaces == null || style.DecimalPlaces == 0)
                 return 9;
 
-            if (style.decimalPlaces == 2)
+            if (style.DecimalPlaces == 2)
                 return 10;
 
 
@@ -273,7 +273,7 @@ internal class StyleManager
             _numberFormats.Add(new NumberingFormat
             {
                 NumberFormatId = id,
-                FormatCode = "0." + new string('0', style.decimalPlaces ?? 2) + "%"
+                FormatCode = "0." + new string('0', style.DecimalPlaces ?? 2) + "%"
             });
 
             return id;
@@ -281,10 +281,10 @@ internal class StyleManager
 
         if (style.UseThousandSeparator)
         {
-            if (style.decimalPlaces == null || style.decimalPlaces == 0)
+            if (style.DecimalPlaces == null || style.DecimalPlaces == 0)
                 return 3;
 
-            if (style.decimalPlaces == 2)
+            if (style.DecimalPlaces == 2)
                 return 4;
 
             var id = _nextNumberFormatId++;
@@ -292,19 +292,19 @@ internal class StyleManager
             _numberFormats.Add(new NumberingFormat
             {
                 NumberFormatId = id,
-                FormatCode = "#,##0" + (style.decimalPlaces.HasValue ? "." + new string('0', style.decimalPlaces.Value) : "")
+                FormatCode = "#,##0" + (style.DecimalPlaces.HasValue ? "." + new string('0', style.DecimalPlaces.Value) : "")
             });
 
             return id;
         }
 
-        if (style.decimalPlaces != null && style.decimalPlaces > 0)
+        if (style.DecimalPlaces != null && style.DecimalPlaces > 0)
         {
             var id = _nextNumberFormatId++;
             var formatCode = "#,##0.0";
 
-            if (style.decimalPlaces > 1)            
-                formatCode += new string('#', style.decimalPlaces.Value - 1);
+            if (style.DecimalPlaces > 1)            
+                formatCode += new string('#', style.DecimalPlaces.Value - 1);
             
             _numberFormats.Add(new NumberingFormat
             {
@@ -345,7 +345,12 @@ internal class StyleManager
     {
         Alignment? alignment = null;
 
-        if (style.HorizontalAlignment != null || style.VerticalAlignment != null)
+        if (style.HorizontalAlignment != null ||
+            style.VerticalAlignment != null ||
+            style.WrapText ||
+            style.TextRotation.HasValue ||
+            style.Indent.HasValue ||
+            style.ShrinkToFit)
         {
             alignment = new Alignment();
 
@@ -370,6 +375,19 @@ internal class StyleManager
                     _ => null
                 };
             }
+
+
+            if (style.WrapText)
+                alignment.WrapText = true;
+
+            if (style.TextRotation.HasValue)
+                alignment.TextRotation = (UInt32Value)(uint)style.TextRotation.Value;
+
+            if (style.Indent.HasValue)
+                alignment.Indent = (UInt32Value)(uint)style.Indent.Value;
+
+            if (style.ShrinkToFit)
+                alignment.ShrinkToFit = true;
         }
 
         return alignment;
