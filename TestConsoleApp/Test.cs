@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
+using System.Reflection;
 using WorkbookSharp;
 using WorkbookSharp.Styles;
 using static WorkbookSharp.WorkbookExtensions;
@@ -176,6 +177,19 @@ internal class Test
             worksheet2.SetValue("B8", long.MaxValue);
             worksheet2.MergeCells("B8", "C9");
             worksheet2.SetValue((6, 12), "what the h is long.MaxValue so long for");
+
+            worksheet2.SetRichText("A20",
+                ("Hello ", new Style
+                {
+                    FontColor = System.Drawing.Color.Blue,
+                    FontDecoration = XlFontDecoration.Bold
+                }),
+                ("World!", new Style
+                {
+                    FontColor = System.Drawing.Color.Red,
+                    FontDecoration = XlFontDecoration.Italic
+                })
+            );
         }
 
         var bytes = await workbook.Save();

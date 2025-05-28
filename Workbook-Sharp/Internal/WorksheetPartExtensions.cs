@@ -70,6 +70,14 @@ internal static class WorksheetPartExtensions
         cell.StyleIndex = formula.StyleIndex;
     }
 
+    internal static void SetCellRichText(this WorksheetPart worksheetPart, CellRichText richText)
+    {
+        var cell = GetOrInsertCellInWorksheet(worksheetPart, richText.CellReference);
+        cell.CellReference = richText.CellReference.Address; 
+        cell.InlineString = richText.InlineString;
+        cell.DataType = CellValues.InlineString;
+    }
+
     internal static void SetCellStyle(this WorksheetPart worksheetPart, Cells.CellStyle xlStyle)
     {
         // Set the style for the cell

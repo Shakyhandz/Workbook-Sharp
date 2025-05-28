@@ -13,6 +13,8 @@ public interface IWorksheet
     ICellRange Dimension { get; }
     void SetValue(string cellReference, object? value, Style? style = null);
     void SetValue((uint row, uint col) cellReference, object? value, Style? style = null);
+    void SetRichText(string cellReference, params (string text, Style style)[] runs);
+    void SetRichText((uint row, uint col) cellReference, params (string text, Style style)[] runs);
     void SetFormula(string cellReference, string? formula, bool isRelative, Style? style = null);
     void SetFormula((uint row, uint col) cellReference, string? formula, bool isRelative, Style? style = null);
     void MergeCells(string startCell, string endCell, Style? style = null);

@@ -86,6 +86,10 @@ internal class Workbook : IWorkbook
                 {
                     worksheetPart.SetCellFormula(xlFormula);
                 }
+                else if (action is CellRichText xlRichText)
+                {
+                    worksheetPart.SetCellRichText(xlRichText);
+                }
                 else if (action is Cells.CellStyle xlStyle)
                 {
                     worksheetPart.SetCellStyle(xlStyle);
@@ -93,7 +97,7 @@ internal class Workbook : IWorkbook
                 else if (action is CellMerge xlMerge)
                 {
                     worksheetPart.MergeCells(xlMerge);
-                }
+                }                
             }
 
             if (ws.AutoFitColumns)

@@ -31,7 +31,7 @@ internal class Worksheet : IWorksheet
                                    ? Cells[1, 1, 1, 1] // default to A1 if no cells are touched
                                    : Cells[Actions.Keys.Min(k => k.startRow), Actions.Keys.Min(k => k.startCol), Actions.Keys.Max(k => k.endRow), Actions.Keys.Max(k => k.endCol)];
 
-    // TODO: add bool "KeepStyle"?
+    // TODO: add bool "KeepExistingStyle" - at the moment it's kept as default?
     public void SetValue(string cellReference, object? value, Style? style = null) => 
         AddCellObject(new CellObject(cellReference, value, GetStyleIndex(style, value)), style);
     public void SetValue((uint row, uint col) cellReference, object? value, Style? style = null) => 
@@ -39,43 +39,63 @@ internal class Worksheet : IWorksheet
 
     private void AddCellObject(CellObject obj, Style? style)
     {
-        if (AutoFitColumns && obj.Value != null)
-        {
-            var text = obj.Value.ToString() ?? "";
+        UpdateMaxColumnWidths(obj, style);
 
-            if (obj.Value is DateTime dt)
+        if (Actions.TryGetValue(obj.GetKey(), out var action))
+        {
+            // Keep style of existing cell if not set here
+            if (style == null)
+                obj.StyleIndex = action.StyleIndex;
+
+            Actions[obj.GetKey()] = obj;
+        }
+        else
+        {
+            Actions.Add(obj.GetKey(), obj);
+        }
+    }
+
+    private void UpdateMaxColumnWidths(CellAction action, Style? style)
+    {
+        if (AutoFitColumns)
+        {
+            var col = action.CellReference.ColumnIndex;
+            var estimatedWidth = action.EstimateColumnWidth(FontSize, FontFamily, style);
+
+            if (estimatedWidth != null)
             {
-                if (style?.DateFormat == null  || style.DateFormat == XlDateFormat.Date)
-                    text = dt.ToShortDateString();
-                else if (style.DateFormat == XlDateFormat.DateHoursMinutesSeconds)
-                    text = dt.ToString("yyyy-MM-dd HH:mm:ss");
-                else if (style.DateFormat == XlDateFormat.DateHoursMinutes)
-                    text = dt.ToString("yyyy-MM-dd HH:mm");
-                else if (style.DateFormat == XlDateFormat.DateHours)
-                    text = dt.ToString("yyyy-MM-dd HH");
-                else if (style.DateFormat == XlDateFormat.HoursMinutesSeconds)
-                    text = dt.ToString("HH:mm:ss");
-                else if (style.DateFormat == XlDateFormat.HoursMinutes)
-                    text = dt.ToString("HH:mm");
-            }
-            double estimatedWidth = EstimateColumnWidth(text, style); 
-            uint col = obj.CellReference.ColumnIndex;
-            
-            if (MaxColumnWidths.TryGetValue(col, out var currentMax))
-            {
-                if (estimatedWidth > currentMax)
-                    MaxColumnWidths[col] = estimatedWidth;
-            }
-            else
-            {
-                MaxColumnWidths[col] = estimatedWidth;
+                if (MaxColumnWidths.TryGetValue(col, out var currentMax))
+                {
+                    if (estimatedWidth > currentMax)
+                        MaxColumnWidths[col] = estimatedWidth.Value;
+                }
+                else
+                {
+                    MaxColumnWidths[col] = estimatedWidth.Value;
+                }
             }
         }
+    }
 
-        if (Actions.ContainsKey(obj.GetKey()))
+    public void SetRichText(string cellReference, params (string text, Style style)[] runs) =>
+        AddRichText(new CellRichText(cellReference, runs));
+    public void SetRichText((uint row, uint col) cellReference, params (string text, Style style)[] runs) =>
+        AddRichText(new CellRichText(cellReference, runs));
+
+    private void AddRichText(CellRichText obj)
+    {
+        UpdateMaxColumnWidths(obj, null);
+
+        if (Actions.TryGetValue(obj.GetKey(), out var action))
+        {
+            // Keep style of existing cell
+            obj.StyleIndex = action.StyleIndex;
             Actions[obj.GetKey()] = obj;
+        }
         else
+        {
             Actions.Add(obj.GetKey(), obj);
+        }
     }
 
     public void SetFormula(string cellReference, string? formula, bool isRelative, Style? style = null) =>
@@ -89,39 +109,6 @@ internal class Worksheet : IWorksheet
             Actions[obj.GetKey()] = obj;
         else
             Actions.Add(obj.GetKey(), obj);
-    }
-
-    private double EstimateColumnWidth(string text, Style? cellStyle)
-    {
-        if (text.IsNothing())
-            return 0;
-
-        // Average character widths, roughly based on Calibri 11pt
-        double total = 0;
-
-        foreach (char c in text)
-        {
-            total += c switch
-            {
-                'i' or 'l' or 'I' or '|' => 0.5,
-                'W' or 'M' => 1.5,
-                ' ' => 0.5,
-                '-' or '_' => 0.75,
-                _ => 1.0
-            };
-        }
-
-        // Scale for font size (default width scale is based on 11pt)
-        var fontSize = cellStyle?.FontSize ?? FontSize ?? 11.0;
-        var fontSizeScale = fontSize / 11.0;
-        var fontFamilyScale = (cellStyle?.FontFamily ?? FontFamily) switch
-        {
-            XlFontFamily.Calibri => 1.0,
-            XlFontFamily.Arial => 1.08,  // Arial is ~8% wider than Calibri
-            _ => 1.0
-        };
-
-        return Math.Min(255, total * fontSizeScale * fontFamilyScale + 2); // +2 for padding
     }
 
     public void MergeCells(string startCell, string endCell, Style? style = null) => AddCellMerge(new CellMerge(startCell, endCell, GetStyleIndex(style)));
