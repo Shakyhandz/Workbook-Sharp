@@ -121,6 +121,8 @@ internal class Test
             worksheet1.SetValue("A4", true, new Style { FillColor = System.Drawing.Color.FromArgb(0xE7, 0xE6, 0xE6) });
             worksheet1.SetValue("A5", new DateTime(2025, 2, 2), new Style { FillColor = System.Drawing.Color.FromArgb(221, 235, 247) });
             worksheet1.SetValue("A6", 0.2, new Style { FillColor = System.Drawing.Color.DarkBlue });
+
+            // TODO: overwrites style
             worksheet1.Cells[1, 1].Value = "overwrite";
             worksheet1.SetValue("A7", 0.23M);
             worksheet1.SetValue("A8", long.MaxValue);
@@ -147,6 +149,14 @@ internal class Test
             worksheet1.SetValue("D8", 22.42, new Style { UseThousandSeparator = true, DecimalPlaces = 2 });
             worksheet1.SetFormula("D5", "=SUM(R1C:R3C)", true, new Style { UseThousandSeparator = true, DecimalPlaces = 2 });
 
+            var style = new Style
+            {
+                CustomNumberFormatCode = "€ #,##0.00",
+                FontSize = 11,
+                FontColor = System.Drawing.Color.DarkGreen
+            };
+            worksheet1.Cells[12, 1].Value = 123456.556;
+            worksheet1.Cells[12, 1].Style = style;
         }
         {
             var worksheet2 = workbook.AddWorksheet();

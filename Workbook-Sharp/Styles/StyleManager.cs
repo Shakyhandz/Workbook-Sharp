@@ -259,6 +259,19 @@ internal class StyleManager
 
     private uint GetNumberFormatId(Style style)
     {
+        if (style.CustomNumberFormatCode.IsSome())
+        {
+            var id = _nextNumberFormatId++;
+            
+            _numberFormats.Add(new NumberingFormat
+            {
+                NumberFormatId = id,
+                FormatCode = style.CustomNumberFormatCode
+            });
+        
+            return id;
+        }
+
         if (style.IsPercentage)
         {
             if (style.DecimalPlaces == null || style.DecimalPlaces == 0)
