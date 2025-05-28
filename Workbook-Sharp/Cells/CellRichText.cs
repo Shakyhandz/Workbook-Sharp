@@ -1,4 +1,5 @@
 ﻿using DocumentFormat.OpenXml;
+using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 using WorkbookSharp.Styles;
 
@@ -46,5 +47,13 @@ internal class CellRichText : CellAction
         }
 
         _inlineString = inlineString;
+    }
+
+    internal override void AddToWorksheetPart(WorksheetPart worksheetPart, SpreadsheetDocument document)
+    {
+        var cell = worksheetPart.GetOrInsertCellInWorksheet(CellReference);
+        cell.CellReference = CellReference.Address;
+        cell.InlineString = InlineString;
+        cell.DataType = CellValues.InlineString;
     }
 }

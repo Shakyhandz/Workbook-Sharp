@@ -78,26 +78,8 @@ internal class Workbook : IWorkbook
 
             foreach (var action in actions)
             {
-                if (action is CellObject xlObj)
-                {
-                    worksheetPart.SetCellValue(document, xlObj);
-                }
-                else if (action is Cells.CellFormula xlFormula)
-                {
-                    worksheetPart.SetCellFormula(xlFormula);
-                }
-                else if (action is CellRichText xlRichText)
-                {
-                    worksheetPart.SetCellRichText(xlRichText);
-                }
-                else if (action is Cells.CellStyle xlStyle)
-                {
-                    worksheetPart.SetCellStyle(xlStyle);
-                }
-                else if (action is CellMerge xlMerge)
-                {
-                    worksheetPart.MergeCells(xlMerge);
-                }                
+                action.AddToWorksheetPart(worksheetPart, document);
+              
             }
 
             if (ws.AutoFitColumns)

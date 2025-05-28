@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using DocumentFormat.OpenXml.Packaging;
+using System.Text.RegularExpressions;
 
 namespace WorkbookSharp.Cells;
 
@@ -25,6 +26,15 @@ internal class CellFormula : CellAction
         _isRelative = isRelative;
     }
 
+    internal override void AddToWorksheetPart(WorksheetPart worksheetPart, SpreadsheetDocument document)
+    {
+        var cell = worksheetPart.GetOrInsertCellInWorksheet(CellReference);
+
+        cell.CellReference = CellReference.Address; // optional but helps with structure
+        cell.CellFormula = new DocumentFormat.OpenXml.Spreadsheet.CellFormula { Text = ParseFormula() };
+        cell.StyleIndex = StyleIndex;
+    }
+
     internal string ParseFormula()
     {
         var parsedFormula = ParseFormulaInternal();
@@ -32,12 +42,12 @@ internal class CellFormula : CellAction
 
         if (errors.Count > 0)
             throw new ArgumentException($"Invalid formula {Formula} in cell {CellReference.Address}:\r\n{errors.StringJoin("\r\n")}");
-        
+
         return parsedFormula!;
     }
 
     private string? ParseFormulaInternal()
-    { 
+    {
         if (Formula.IsSome() && IsRelative)
         {
             try

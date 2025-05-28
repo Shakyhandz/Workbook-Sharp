@@ -1,4 +1,8 @@
-﻿namespace WorkbookSharp.Cells;
+﻿using DocumentFormat.OpenXml;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Spreadsheet;
+
+namespace WorkbookSharp.Cells;
 
 internal class CellMerge : CellAction
 {
@@ -16,4 +20,20 @@ internal class CellMerge : CellAction
     }
 
     internal override (uint startRow, uint startCol, uint endRow, uint endCol) GetKey() => (CellReference.RowIndex, CellReference.ColumnIndex, ToCellReference.RowIndex, ToCellReference.ColumnIndex);
+
+    internal override void AddToWorksheetPart(WorksheetPart worksheetPart, SpreadsheetDocument document)
+    {
+        worksheetPart.GetOrInsertCellInWorksheet(CellReference);
+        worksheetPart.GetOrInsertCellInWorksheet(ToCellReference);
+
+        var mergeCells = worksheetPart.Worksheet.GetOrInsertWorksheetElement<MergeCells>();
+
+        // Create the merged cell and append it to the MergeCells collection.
+        MergeCell mergeCell = new MergeCell
+        {
+            Reference = new StringValue($"{CellReference.Address}:{ToCellReference.Address}")
+        };
+
+        mergeCells.Append(mergeCell);
+    }
 }

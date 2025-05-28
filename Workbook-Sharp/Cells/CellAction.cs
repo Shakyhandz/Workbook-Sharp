@@ -1,9 +1,9 @@
-﻿using DocumentFormat.OpenXml.Wordprocessing;
+﻿using DocumentFormat.OpenXml.Packaging;
 using WorkbookSharp.Styles;
 
 namespace WorkbookSharp.Cells;
 
-internal class CellAction
+internal abstract class CellAction
 {
     private CellReference _cellReference;
     internal CellReference CellReference => _cellReference;
@@ -25,6 +25,8 @@ internal class CellAction
     {
         return (CellReference.RowIndex, CellReference.ColumnIndex, CellReference.RowIndex, CellReference.ColumnIndex);
     }
+
+    internal abstract void AddToWorksheetPart(WorksheetPart worksheetPart, SpreadsheetDocument document);
 
     internal double? EstimateColumnWidth(double? sheetFontSize, XlFontFamily sheetFontFamily, Styles.Style? style)
     {

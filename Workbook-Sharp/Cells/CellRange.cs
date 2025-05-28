@@ -50,7 +50,7 @@ public class CellRange : ICellRange
             }
             else
             {
-                // Un-merge
+                // Un-merge if set to false
                 if (_worksheet.Actions.TryGetValue((_startRow, _startColumn, _endRow, _endColumn), out var action) && action is CellMerge mergeOp)
                     _worksheet.UnMergeCells(mergeOp);                    
             }
